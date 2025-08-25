@@ -2,19 +2,18 @@ name: Build Image
 
 on:
   push:
-    branches:
-      - main
-      - nginx
     tags:
       - "v*"
 
 jobs:
   build-image:
+    if: github.event.base_ref == 'refs/heads/main' || github.event.base_ref == 'refs/heads/nginx'
+
     runs-on: ubuntu-latest
 
     env:
-      GHCR_REGISTRY: ghcr.io
       IMAGE_NAME: ghcr.io/${{ github.repository }}:${{ github.ref_name }}
+      GHCR_REGISTRY: ghcr.io
 
     steps:
       - name: Checkout Code
