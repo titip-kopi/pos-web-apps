@@ -37,6 +37,6 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           context: .
-          file: ${{ github.ref_name == 'nginx' && 'Dockerfile.nginx' || 'Dockerfile' }}
+          file: ${{ github.event.base_ref == 'refs/heads/nginx' && 'Dockerfile.nginx' || 'Dockerfile' }}
           push: true
           tags: ${{ env.IMAGE_NAME }}
