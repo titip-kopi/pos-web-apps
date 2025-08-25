@@ -10,21 +10,22 @@
 
 @section('main')
     <?php
-    use App\Models\User;
-    use App\Models\Product;
     use App\Models\Order;
     use Illuminate\Support\Facades\DB;
 
-    // $total_admin = User::where('roles', 'admin')->count();
-    $total_admin = User::count();
-    $total_product = Product::count();
-    $total_order = Order::count();
     $orders = Order::select('transaction_time', 'total_price')->orderBy('transaction_time')->get();
 
-    $labels = $orders->pluck('transaction_time')->toArray(); // sebelumnya 'order_date'
     $data = $orders->pluck('total_price')->toArray(); // sebelumnya 'total_amount'
     // Query untuk mendapatkan produk yang terjual beserta jumlahnya
-    $sold_products = DB::table('order_items')->join('products', 'order_items.product_id', '=', 'products.id')->select('products.name', 'products.price', DB::raw('SUM(order_items.quantity) as quantity_sold'))->groupBy('order_items.product_id', 'products.name', 'products.price')->orderBy('quantity_sold', 'desc')->get();
+    $sold_products = DB::table('order_items')
+    ->join('products', 'order_items.product_id', '=', 'products.id')
+    ->join('orders', 'order_items.order_id', '=', 'orders.id')
+    ->select('products.name', 'products.price', DB::raw('SUM(order_items.quantity) as quantity_sold'))
+    ->whereMonth('orders.transaction_time', date('m'))
+    ->whereYear('orders.transaction_time', date('Y'))
+    ->groupBy('order_items.product_id', 'products.name', 'products.price')
+    ->orderBy('quantity_sold', 'desc')
+    ->get();
     ?>
     <div class="main-content">
         <section class="section">
@@ -33,48 +34,72 @@
             </div>
             <div class="row row-cols-1 row-cols-md-3 g-4">
                 <div class="col">
-                    <div class="card card-statistic-1">
-                        <div class="card-icon bg-dark-gray">
-                            <i class="far fa-user"></i>
-                        </div>
-                        <div class="card-wrap">
-                            <div class="card-header">
-                                <h4>Total Users</h4>
-                            </div>
-                            <div class="card-body">
-                                <?php echo $total_admin; ?>
-                            </div>
-                        </div>
+                    <div class="card text-center p-3">
+                        <h6>Total Users</h6>
+                        <h3>{{ $totalUsers }}</h3>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card card-statistic-1">
-                        <div class="card-icon bg-soft-blue">
-                            <i class="far fa-newspaper"></i>
-                        </div>
-                        <div class="card-wrap">
-                            <div class="card-header">
-                                <h4>Total Products</h4>
-                            </div>
-                            <div class="card-body">
-                                <?php echo $total_product; ?>
-                            </div>
-                        </div>
+                    <div class="card text-center p-3">
+                        <h6>Total Products</h6>
+                        <h3>{{ $totalProducts }}</h3>
                     </div>
                 </div>
                 <div class="col">
-                    <div class="card card-statistic-1">
-                        <div class="card-icon bg-soft-green">
-                            <i class="fas fa-circle"></i>
-                        </div>
-                        <div class="card-wrap">
-                            <div class="card-header">
-                                <h4>Total Orders</h4>
-                            </div>
-                            <div class="card-body">
-                                <?php echo $total_order; ?>
-                            </div>
-                        </div>
+                    <div class="card text-center p-3">
+                        <h6>Total Orders</h6>
+                        <h3>{{ $totalOrders }}</h3>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-center p-3">
+                        <h6>Pendapatan Hari Ini</h6>
+                        <h4>Rp {{ number_format($todayRevenue,0,',','.') }}</h4>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-center p-3">
+                        <h6>Pendapatan Bulan Ini</h6>
+                        <h4>Rp {{ number_format($monthlyRevenue,0,',','.') }}</h4>
+                    </div>
+                </div>
+                <div class="col">
+                    <div class="card text-center p-3">
+                        <h6>Rata-rata Order Perbulan</h6>
+                        <h4>Rp {{ number_format($avgOrderThisMonth, 0, ',', '.') }}</h4>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 col-12">
+                    <div class="card p-3">
+                        <h5>Produk Terlaris</h5>
+                        <table class="table">
+                            <thead><tr><th>Produk</th><th>Terjual</th><th>Pendapatan</th></tr></thead>
+                            <tbody>
+                                @foreach($top_products as $p)
+                                <tr>
+                                    <td>{{ $p->name }}</td>
+                                    <td>{{ $p->quantity_sold }}</td>
+                                    <td>Rp {{ number_format($p->revenue,0,',','.') }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-12 col-12">
+                    <div class="card p-3">
+                        <h5>Produk Sepi</h5>
+                        <table class="table">
+                            <thead><tr><th>Produk</th><th>Terjual</th></tr></thead>
+                            <tbody>
+                                @foreach($slow_products as $p)
+                                <tr>
+                                    <td>{{ $p->name }}</td>
+                                    <td>{{ $p->quantity_sold }}</td>
+                                </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
                     </div>
                 </div>
                 <!-- Tambahkan bagian untuk menampilkan produk yang terjual -->
@@ -127,7 +152,6 @@
                         </div>
                     </div>
                 </div>
-
             </div>
         </section>
     </div>

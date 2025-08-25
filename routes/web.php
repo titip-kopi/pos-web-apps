@@ -3,6 +3,7 @@
 use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\OrderController;
+use App\Http\Controllers\DashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -22,13 +23,11 @@ Route::get('/', function () {
 
 
 Route::middleware(['auth'])->group(function () {
-    Route::get('home', function () {
-        return view('pages.dashboard');
-    })->name('home');
+    Route::get('home', [DashboardController::Class, 'index'])->name('home');
     Route::resource('user', UserController::class);
     Route::resource('product', \App\Http\Controllers\ProductController::class);
     Route::resource('order', \App\Http\Controllers\OrderController::class);
-    Route::get('/orders', [OrderController::class, 'index'])->name('orders.index');
+    Route::get('/orders', [OrderController::class, 'filter'])->name('orders.filter');
     Route::get('/orders/print', [OrderController::class, 'print'])->name('orders.print');
     Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
 });

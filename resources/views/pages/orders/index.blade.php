@@ -50,18 +50,20 @@
                                     <h4>All Orders</h4>
                                 </div>
                                 <div class="card-body">
-                                    <form method="GET" class="mb-3">
+                                    <form method="GET" action="{{ route('orders.filter') }}" class="mb-3">
                                         <div class="row align-items-center">
                                             <div class="col-md-3">
-                                                <input type="date" name="start_date" class="form-control"
-                                                    value="{{ request('start_date') }}">
+                                                <input type="date" id="start_date" name="start_date" class="form-control"
+                                                    value="{{ request('start_date') }}"
+                                                    max="{{ now()->toDateString() }}">
                                             </div>
                                             <div class="col-auto px-0">
                                                 <span style="font-size: 15px;">&nbsp;&nbsp;s/d&nbsp;&nbsp;</span>
                                             </div>
                                             <div class="col-md-3">
-                                                <input type="date" name="end_date" class="form-control"
-                                                    value="{{ request('end_date') }}">
+                                                <input type="date" id="end_date" name="end_date" class="form-control"
+                                                    value="{{ request('end_date') }}"
+                                                    disabled>
                                             </div>
                                             <div class="col-auto">
                                                 <button type="submit" class="btn btn-primary px-4">Filter</button>
@@ -147,4 +149,28 @@
 @push('scripts')
     <!-- JS Libraries -->
     <script src="{{ asset('library/selectric/public/jquery.selectric.min.js') }}"></script>
+
+    <script>
+        const startDateInput = document.getElementById("start_date");
+        const endDateInput = document.getElementById("end_date");
+
+        startDateInput.addEventListener("change", function () {
+            if (this.value) {
+                endDateInput.disabled = false;
+                endDateInput.min = this.value; // end_date tidak boleh < start_date
+                endDateInput.max = new Date().toISOString().split("T")[0]; // max hari ini
+                endDateInput.value = new Date().toISOString().split("T")[0];
+            } else {
+                endDateInput.disabled = true;
+                endDateInput.value = "";
+            }
+        });
+
+        // jika halaman di-refresh dengan start_date sudah ada, otomatis aktifkan end_date
+        if (startDateInput.value) {
+            endDateInput.disabled = false;
+            endDateInput.min = startDateInput.value;
+            endDateInput.max = new Date().toISOString().split("T")[0];
+        }
+    </script>
 @endpush

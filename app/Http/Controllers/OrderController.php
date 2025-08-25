@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Order;
 use Barryvdh\DomPDF\Facade\Pdf;
 
+use Carbon\Carbon;
+
 class OrderController extends Controller
 {
     /**
@@ -14,6 +16,16 @@ class OrderController extends Controller
      * @return \Illuminate\View\View
      */
     public function index(Request $request)
+    {
+        $orders = Order::with(['orderItems.product', 'kasir'])
+            ->whereDate('transaction_time', Carbon::today())
+            ->orderBy('transaction_time', 'desc')
+            ->paginate(10);
+
+        return view('pages.orders.index', compact('orders'));
+    }
+
+    public function filter(Request $request)
     {
         $query = Order::with(['orderItems.product', 'kasir']);
 
