@@ -84,6 +84,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        <div class="d-flex justify-content-center">
+                            {{ $top_products->links() }}
+                        </div>
                     </div>
                 </div>
                 <div class="col-lg-6 col-md-12 col-12">
@@ -100,6 +103,9 @@
                                 @endforeach
                             </tbody>
                         </table>
+                        <div class="d-flex justify-content-center">
+                            {{ $slow_products->links() }}
+                        </div>
                     </div>
                 </div>
                 <!-- Tambahkan bagian untuk menampilkan produk yang terjual -->

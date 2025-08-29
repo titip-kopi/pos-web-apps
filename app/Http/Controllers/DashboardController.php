@@ -41,8 +41,7 @@ class DashboardController extends Controller
             ->select('products.name', DB::raw('SUM(order_items.quantity) as quantity_sold'), DB::raw('SUM(order_items.total_price) as revenue'))
             ->groupBy('products.id', 'products.name')
             ->orderByDesc('quantity_sold')
-            ->limit(5)
-            ->get();
+            ->paginate(5);
 
         // Produk sepi
         $slow_products = DB::table('products')
@@ -50,8 +49,7 @@ class DashboardController extends Controller
             ->select('products.name', DB::raw('COALESCE(SUM(order_items.quantity),0) as quantity_sold'))
             ->groupBy('products.id', 'products.name')
             ->orderBy('quantity_sold', 'asc')
-            ->limit(5)
-            ->get();
+            ->paginate(5);
 
         // Stok menipis
         $low_stock = Product::where('stock', '<', 10)->get();
