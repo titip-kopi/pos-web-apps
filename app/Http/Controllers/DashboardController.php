@@ -72,6 +72,10 @@ class DashboardController extends Controller
             ->groupBy('payment_method')
             ->get();
 
+        $monthlyExpenditure = Expenditure::whereMonth('spent_at', now()->month)
+            ->whereYear('spent_at', now()->year)
+            ->sum('amount');
+
         return view('pages.dashboard', compact(
             'totalUsers',
             'totalProducts',
@@ -84,7 +88,8 @@ class DashboardController extends Controller
             'low_stock',
             'trendLabels',
             'trendData',
-            'paymentStats'
+            'paymentStats',
+            'monthlyExpenditure'
         ));
     }
 }

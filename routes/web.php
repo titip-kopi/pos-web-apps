@@ -30,4 +30,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/orders', [OrderController::class, 'filter'])->name('orders.filter');
     Route::get('/orders/print', [OrderController::class, 'print'])->name('orders.print');
     Route::get('/orders/export', [OrderController::class, 'export'])->name('orders.export');
+    Route::resource('expenditure', \App\Http\Controllers\ExpenditureController::class);
 });
